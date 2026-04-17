@@ -1,0 +1,168 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Каталог электрозапчастей{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header-accent d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-list-ul"></i> Каталог электрозапчастей</span>
+        {% if user_role == 'admin' %}
+        <a href="{% url 'products:product_create' %}" class="btn btn-sm btn-light" style="font-size:13px">
+            <i class="bi bi-plus-circle me-1"></i> Добавить
+        </a>
+        {% endif %}
+    </div>
+
+    {% if user_role == 'admin' or user_role == 'manager' %}
+    <div style="background:#f8f9fa;border-bottom:1px solid #dee2e6;padding:12px 16px;">
+        <form method="get" class="row g-2 align-items-end" id="product-filters-form">
+            <div class="col-md-4">
+                <label class="form-label mb-1" style="font-size:12px">Поиск</label>
+                <input type="text" class="form-control form-control-sm" id="search" name="search"
+                    value="{{ search_query }}" placeholder="Поиск по каталогу...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1" style="font-size:12px">Поставщик</label>
+                <select class="form-select form-select-sm" id="supplier" name="supplier">
+                    <option value="">Все поставщики</option>
+                    {% for s in suppliers %}
+                    <option value="{{ s.id }}" {% if supplier_filter == s.id|stringformat:'s' %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1" style="font-size:12px">Сортировка</label>
+                <select class="form-select form-select-sm" id="sort" name="sort">
+                    <option value="name" {% if sort_by == 'name' %}selected{% endif %}>По названию</option>
+                    <option value="quantity_asc" {% if sort_by == 'quantity_asc' %}selected{% endif %}>Кол-во (возр.)</option>
+                    <option value="quantity_desc" {% if sort_by == 'quantity_desc' %}selected{% endif %}>Кол-во (убыв.)</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'products:product_list' %}" class="btn btn-sm btn-outline-secondary w-100">
+                    <i class="bi bi-x-circle me-1"></i> Сброс
+                </a>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="card-body p-0">
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:60px">Фото</th>
+                        <th>Название</th>
+                        <th>Категория</th>
+                        <th>Описание</th>
+                        <th>Производитель</th>
+                        <th>Поставщик</th>
+                        <th>Цена</th>
+                        <th>Ед.</th>
+                        <th>Кол-во</th>
+                        <th>Скидка</th>
+                        {% if user_role == 'admin' %}<th style="width:80px">Действия</th>{% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in page_obj %}
+                    <tr class="product-row {% if product.discount > 15 %}discount-high{% endif %} {% if not product.is_available %}out-of-stock{% endif %} {% if user_role == 'admin' %}admin-editable-row{% endif %}"
+                        {% if user_role == 'admin' %}data-edit-url="{% url 'products:product_update' product.pk %}"{% endif %}>
+                        <td>
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" style="width:48px;height:40px;object-fit:cover;border-radius:2px;">
+                            {% else %}
+                            <img src="{% static 'images/picture.png' %}" style="width:48px;height:40px;object-fit:cover;border-radius:2px;opacity:0.5;">
+                            {% endif %}
+                        </td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.category.name }}</td>
+                        <td><span style="color:#666">{{ product.description|truncatechars:40 }}</span></td>
+                        <td>{{ product.manufacturer.name }}</td>
+                        <td>{{ product.supplier.name }}</td>
+                        <td>
+                            {% if product.discount > 0 %}
+                            <span class="original-price">{{ product.price }} ₽</span><br>
+                            <span class="final-price">{{ product.final_price }} ₽</span>
+                            {% else %}
+                            {{ product.price }} ₽
+                            {% endif %}
+                        </td>
+                        <td>{{ product.unit.abbreviation|default:product.unit.name }}</td>
+                        <td>{{ product.quantity }}</td>
+                        <td>{% if product.discount > 0 %}{{ product.discount }}%{% else %}—{% endif %}</td>
+                        {% if user_role == 'admin' %}
+                        <td>
+                            <a href="{% url 'products:product_update' product.pk %}" class="btn btn-outline-primary btn-sm me-1" title="Редактировать"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'products:product_delete' product.pk %}" class="btn btn-outline-danger btn-sm" title="Удалить"><i class="bi bi-trash"></i></a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="d-flex justify-content-center py-3">
+            <ul class="pagination pagination-sm mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if supplier_filter %}&supplier={{ supplier_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">‹</a>
+                </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if supplier_filter %}&supplier={{ supplier_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if supplier_filter %}&supplier={{ supplier_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">›</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox-fill" style="font-size:2.5rem"></i>
+            <p class="mt-3 mb-0">Электрозапчасти не найдены</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if user_role == 'admin' or user_role == 'manager' %}
+<script>
+    const form = document.getElementById('product-filters-form');
+    let timer = null;
+    document.getElementById('search').addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => form.submit(), 300);
+    });
+    document.getElementById('supplier').addEventListener('change', () => form.submit());
+    document.getElementById('sort').addEventListener('change', () => form.submit());
+</script>
+{% endif %}
+{% if user_role == 'admin' %}
+<script>
+    document.querySelectorAll('.admin-editable-row').forEach(row => {
+        row.addEventListener('click', e => {
+            if (e.target.closest('a,button')) return;
+            if (row.dataset.editUrl) window.location.href = row.dataset.editUrl;
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

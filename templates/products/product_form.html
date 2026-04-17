@@ -1,0 +1,127 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 720px; margin: 0 auto;">
+    <div class="card">
+        <div class="card-header-accent">
+            <i class="bi bi-plus-circle"></i> {{ title }}
+        </div>
+        <div class="card-body-form">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.name.label }}</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}<div class="text-danger" style="font-size:12px;margin-top:3px">{{ form.name.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.category.label }}</label>
+                        {{ form.category }}
+                        {% if form.category.errors %}<div class="text-danger" style="font-size:12px;margin-top:3px">{{ form.category.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}<div class="text-danger" style="font-size:12px;margin-top:3px">{{ form.description.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.manufacturer.label }}</label>
+                        {{ form.manufacturer }}
+                        {% if form.manufacturer.errors %}<div class="text-danger" style="font-size:12px;margin-top:3px">{{ form.manufacturer.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.supplier.label }}</label>
+                        {{ form.supplier }}
+                        {% if form.supplier.errors %}<div class="text-danger" style="font-size:12px;margin-top:3px">{{ form.supplier.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.price.label }}</label>
+                        {{ form.price }}
+                        {% if form.price.help_text %}<div class="text-muted" style="font-size:12px;margin-top:3px">{{ form.price.help_text }}</div>{% endif %}
+                        {% if form.price.errors %}<div class="text-danger" style="font-size:12px;margin-top:3px">{{ form.price.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.unit.label }}</label>
+                        {{ form.unit }}
+                        {% if form.unit.errors %}<div class="text-danger" style="font-size:12px;margin-top:3px">{{ form.unit.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.quantity.label }}</label>
+                        {{ form.quantity }}
+                        {% if form.quantity.help_text %}<div class="text-muted" style="font-size:12px;margin-top:3px">{{ form.quantity.help_text }}</div>{% endif %}
+                        {% if form.quantity.errors %}<div class="text-danger" style="font-size:12px;margin-top:3px">{{ form.quantity.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.discount.label }}</label>
+                        {{ form.discount }}
+                        {% if form.discount.help_text %}<div class="text-muted" style="font-size:12px;margin-top:3px">{{ form.discount.help_text }}</div>{% endif %}
+                        {% if form.discount.errors %}<div class="text-danger" style="font-size:12px;margin-top:3px">{{ form.discount.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.image.label }}</label>
+                        {{ form.image }}
+                        {% if form.image.help_text %}<div class="text-muted" style="font-size:12px;margin-top:3px">{{ form.image.help_text }}</div>{% endif %}
+                        {% if form.image.errors %}<div class="text-danger" style="font-size:12px;margin-top:3px">{{ form.image.errors.0 }}</div>{% endif %}
+                        {% if product.image %}
+                        <div class="mt-2">
+                            <small class="text-muted">Текущее фото:</small><br>
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                                style="max-width:80px;max-height:65px;object-fit:cover;border:1px solid #ddd;border-radius:3px;margin-top:4px">
+                        </div>
+                        {% else %}
+                        <div class="mt-2">
+                            <small class="text-muted">Изображение-заглушка:</small><br>
+                            <img src="{% static 'images/picture.png' %}" alt="нет фото"
+                                style="max-width:80px;max-height:65px;object-fit:cover;border:1px solid #ddd;border-radius:3px;margin-top:4px">
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i> Сохранить
+                    </button>
+                    <a href="{% url 'products:product_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const productFormLockKey = 'product_form_edit_lock';
+    const currentProductLockValue = '{{ product.id|default:"create" }}';
+    const lockValue = localStorage.getItem(productFormLockKey);
+    if (lockValue && lockValue !== currentProductLockValue) {
+        alert('Форма редактирования уже открыта в другой вкладке.');
+        window.location.href = "{% url 'products:product_list' %}";
+    } else {
+        localStorage.setItem(productFormLockKey, currentProductLockValue);
+    }
+    window.addEventListener('beforeunload', () => {
+        if (localStorage.getItem(productFormLockKey) === currentProductLockValue) {
+            localStorage.removeItem(productFormLockKey);
+        }
+    });
+</script>
+{% endblock %}

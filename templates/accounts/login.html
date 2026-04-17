@@ -1,0 +1,97 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Вход в систему{% endblock %}
+
+{% block extra_head %}
+<style>
+    body {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        min-height: 100vh;
+    }
+    main.container {
+        display: flex;
+        align-items: center;
+        min-height: 90vh;
+    }
+    .login-card {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    .login-header {
+        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        padding: 2rem;
+        text-align: center;
+        color: white;
+    }
+    .login-header i {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    .login-header h4 {
+        font-weight: 700;
+        margin: 0;
+    }
+    .login-body {
+        padding: 2rem;
+    }
+    .form-control {
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        border: 1.5px solid #dee2e6;
+    }
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
+    }
+    .btn-login {
+        padding: 0.65rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center w-100">
+    <div class="col-sm-8 col-md-5 col-lg-4">
+        <div class="card login-card shadow-lg">
+            <div class="login-header">
+                <i class="bi bi-lightning-charge-fill"></i>
+                <h4>Магазин электрозапчастей</h4>
+                <p class="mb-0 mt-1 opacity-75" style="font-size:0.9rem">Войдите в аккаунт</p>
+            </div>
+            <div class="login-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-semibold">Имя пользователя</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0" id="username" name="username" placeholder="Введите логин" required autofocus>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-semibold">Пароль</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                            <input type="password" class="form-control border-start-0" id="password" name="password" placeholder="Введите пароль" required>
+                        </div>
+                    </div>
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-login">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Войти
+                        </button>
+                    </div>
+                </form>
+                <div class="text-center">
+                    <a href="{% url 'products:product_list' %}" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="bi bi-eye me-1"></i> Смотреть каталог без входа
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

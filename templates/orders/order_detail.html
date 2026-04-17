@@ -1,0 +1,111 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Заказ {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-bag-check text-primary me-2"></i>{{ order.order_number }}</h1>
+    <div class="d-flex gap-2">
+        {% if user_role == 'manager' or user_role == 'admin' %}
+        <a href="{% url 'orders:order_update' order.pk %}" class="btn btn-warning">
+            <i class="bi bi-pencil me-1"></i> Редактировать
+        </a>
+        {% endif %}
+        {% if user_role == 'admin' %}
+        <a href="{% url 'orders:order_delete' order.pk %}" class="btn btn-danger">
+            <i class="bi bi-trash me-1"></i> Удалить
+        </a>
+        {% endif %}
+        <a href="{% url 'orders:order_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Назад
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Информация о заказе</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Номер</span>
+                        <span class="fw-semibold">{{ order.order_number }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Дата заказа</span>
+                        <span>{{ order.order_date|date:"d.m.Y H:i" }}</span>
+                    </li>
+                    {% if order.delivery_date %}
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Дата доставки</span>
+                        <span>{{ order.delivery_date|date:"d.m.Y H:i" }}</span>
+                    </li>
+                    {% endif %}
+                    {% if user_role == 'admin' or user_role == 'manager' %}
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Клиент</span>
+                        <span>{{ order.customer.get_full_name|default:order.customer.username }}</span>
+                    </li>
+                    {% endif %}
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Статус</span>
+                        <span class="badge bg-secondary">{{ order.status.name }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Пункт выдачи</span>
+                        <span class="text-end" style="max-width:60%">{{ order.pickup_point.address }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h6 class="mb-0"><i class="bi bi-list-ul me-2"></i>Состав заказа</h6>
+            </div>
+            <div class="card-body p-0">
+                {% if order.items.all %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Товар</th>
+                                <th class="text-end">Цена</th>
+                                <th class="text-end">Кол-во</th>
+                                <th class="text-end">Сумма</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td class="text-end text-muted">{{ item.price }} ₽</td>
+                                <td class="text-end">{{ item.quantity }}</td>
+                                <td class="text-end fw-semibold">{{ item.subtotal }} ₽</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="3" class="text-end">Итого:</th>
+                                <th class="text-end text-success fs-6">{{ order.total_price }} ₽</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-inbox" style="font-size:2rem"></i>
+                    <p class="mt-2 mb-0">Позиции не добавлены</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

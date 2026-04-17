@@ -1,0 +1,109 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-bag-plus text-primary me-2"></i>{{ title }}</h1>
+</div>
+
+<div class="card">
+    <div class="card-body p-4">
+        <form method="post">
+            {% csrf_token %}
+            {% if formset %}{{ formset.management_form }}{% endif %}
+
+            <div class="row g-3 mb-4">
+                {% if form.pickup_point %}
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">{{ form.pickup_point.label }}</label>
+                    {{ form.pickup_point }}
+                    {% if form.pickup_point.errors %}
+                    <div class="text-danger small mt-1">{{ form.pickup_point.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.status %}
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">{{ form.status.label }}</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                    <div class="text-danger small mt-1">{{ form.status.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.delivery_date %}
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">{{ form.delivery_date.label }} <span class="text-muted fw-normal">(необязательно)</span></label>
+                    {{ form.delivery_date }}
+                    {% if form.delivery_date.errors %}
+                    <div class="text-danger small mt-1">{{ form.delivery_date.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            {% if formset %}
+            <hr class="my-4">
+            <h5 class="mb-3"><i class="bi bi-list-ul me-2 text-primary"></i>Позиции заказа</h5>
+
+            {% if formset.non_form_errors %}
+            <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
+            {% endif %}
+
+            <div id="formset-container">
+                {% for item_form in formset %}
+                <div class="card mb-2 border-0 bg-light item-form-row">
+                    <div class="card-body py-3">
+                        {% if item_form.non_field_errors %}
+                        <div class="text-danger small mb-2">{{ item_form.non_field_errors }}</div>
+                        {% endif %}
+                        <div class="row g-2 align-items-end">
+                            {% if item_form.id %}{{ item_form.id }}{% endif %}
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold mb-1" style="font-size:0.85rem">Товар</label>
+                                {{ item_form.product }}
+                                {% if item_form.product.errors %}
+                                <div class="text-danger small">{{ item_form.product.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold mb-1" style="font-size:0.85rem">Количество</label>
+                                {{ item_form.quantity }}
+                                {% if item_form.quantity.errors %}
+                                <div class="text-danger small">{{ item_form.quantity.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% if item_form.DELETE %}
+                            <div class="col-md-2 text-center">
+                                <label class="form-label mb-1 d-block" style="font-size:0.85rem">Удалить</label>
+                                {{ item_form.DELETE }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check-lg me-1"></i> Сохранить
+                </button>
+                {% if order %}
+                <a href="{% url 'orders:order_detail' order.pk %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-lg me-1"></i> Отмена
+                </a>
+                {% else %}
+                <a href="{% url 'orders:order_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-lg me-1"></i> Отмена
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

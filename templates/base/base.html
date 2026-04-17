@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Магазин электрозапчастей{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent: #388E3C;
+            --accent-dark: #2E7D32;
+        }
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+        .navbar {
+            background-color: #388E3C !important;
+            padding: 0 0;
+            height: 48px;
+        }
+        .navbar .container {
+            height: 48px;
+        }
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 15px;
+            color: #fff !important;
+            padding: 0 8px;
+        }
+        .navbar-brand i {
+            margin-right: 6px;
+        }
+        .navbar .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-size: 14px;
+            padding: 0 14px !important;
+            height: 48px;
+            display: flex;
+            align-items: center;
+        }
+        .navbar .nav-link:hover {
+            color: #fff !important;
+            background: rgba(255,255,255,0.15);
+        }
+        .navbar .nav-link i {
+            margin-right: 5px;
+        }
+        .navbar .dropdown-toggle::after {
+            margin-left: 6px;
+        }
+        .role-badge-nav {
+            font-size: 11px;
+            background: rgba(255,255,255,0.25);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-right: 4px;
+        }
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        main.container {
+            padding-top: 24px;
+            padding-bottom: 40px;
+            max-width: 1100px;
+        }
+        .card {
+            border: none;
+            border-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .card-header-accent {
+            background-color: var(--accent);
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: 4px 4px 0 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .card-header-accent i {
+            margin-right: 8px;
+        }
+        .card-body-form {
+            padding: 24px 20px;
+            background: #fff;
+        }
+        .form-label {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .form-control, .form-select {
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            padding: 6px 10px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(33,150,243,0.2);
+        }
+        .btn-primary {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            border-radius: 3px;
+            font-size: 14px;
+            padding: 7px 20px;
+        }
+        .btn-primary:hover {
+            background-color: var(--accent-dark);
+            border-color: var(--accent-dark);
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            border-radius: 3px;
+            font-size: 14px;
+            padding: 7px 20px;
+        }
+        .btn-success {
+            border-radius: 3px;
+            font-size: 14px;
+            padding: 7px 16px;
+        }
+        .btn-warning { border-radius: 3px; font-size: 14px; }
+        .btn-danger  { border-radius: 3px; font-size: 14px; }
+        .btn-outline-secondary { border-radius: 3px; font-size: 14px; }
+        .btn-outline-primary   { border-radius: 3px; font-size: 13px; }
+        .btn-outline-danger    { border-radius: 3px; font-size: 13px; }
+        .btn-outline-warning   { border-radius: 3px; font-size: 13px; }
+        .table th {
+            font-size: 13px;
+            font-weight: 600;
+            color: #444;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .table td { font-size: 13px; vertical-align: middle; }
+        .product-row:hover { background: #f0f4ff !important; cursor: default; }
+        .discount-high  { background-color: #d4edda !important; }
+        .out-of-stock   { background-color: #cce5ff !important; }
+        .original-price { text-decoration: line-through; color: #999; font-size: 0.85em; }
+        .final-price    { color: #198754; font-weight: 700; }
+        h1 { font-size: 1.4rem; font-weight: 700; color: #222; }
+        .alert { border-radius: 4px; font-size: 14px; }
+        .pagination .page-link { font-size: 13px; border-radius: 3px; margin: 0 2px; }
+        .badge { font-size: 12px; border-radius: 3px; padding: 3px 8px; }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'products:product_list' %}">
+            <i class="bi bi-shop"></i> Магазин электрозапчастей
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'products:product_list' %}">
+                        <i class="bi bi-list-ul"></i> Товары
+                    </a>
+                </li>
+                {% if current_user_role != 'guest' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'orders:order_list' %}">
+                        <i class="bi bi-cart3"></i> Заказы
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+
+            <ul class="navbar-nav align-items-center">
+                {% if user.is_authenticated %}
+                    {% if current_user_role == 'admin' %}
+                        <li class="nav-item"><span class="role-badge-nav">Администратор</span></li>
+                    {% elif current_user_role == 'manager' %}
+                        <li class="nav-item"><span class="role-badge-nav">Менеджер</span></li>
+                    {% elif current_user_role == 'client' %}
+                        <li class="nav-item"><span class="role-badge-nav">Клиент</span></li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-fill"></i> {{ user.get_full_name|default:user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person me-2"></i>Профиль</a></li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Выход</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:login' %}">
+                            <i class="bi bi-box-arrow-in-right"></i> Войти
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container mt-3">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show py-2" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
